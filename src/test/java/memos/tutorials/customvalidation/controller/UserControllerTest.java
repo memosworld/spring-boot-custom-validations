@@ -112,11 +112,26 @@ public class UserControllerTest {
 
     }
 
+    @Test
+    void shouldReturn400WhenCountryNotValid() throws Exception {
+        // given
+        UserRequestDTO dto = getValidUserRequestDTO();
+
+        dto.setCountry("TUR");
+
+        // when
+        mockMvc.perform(post("/validation-examples")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(getObjectMapper().writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
+    }
+
     private UserRequestDTO getValidUserRequestDTO() {
         UserRequestDTO dto = new UserRequestDTO();
         dto.setFirstName("Memo's");
         dto.setLastName("Tutorials");
         dto.setId("790916a2-75db-4744-a2c5-6127c1271e31");
+        dto.setCountry("HR");
         dto.setLuckyNumber(7);
         dto.setMaxDataSize(32);
         dto.setFibonacci(13L);
