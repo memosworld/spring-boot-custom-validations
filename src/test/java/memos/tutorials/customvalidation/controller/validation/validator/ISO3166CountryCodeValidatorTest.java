@@ -13,7 +13,6 @@ import java.lang.annotation.Annotation;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ISO3166CountryCodeValidatorTest {
     AutoCloseable closeable;
@@ -37,7 +36,7 @@ public class ISO3166CountryCodeValidatorTest {
     @Test
     void shouldPassWhenGivenCountry2LetterCodeValid() {
         // given
-        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(2));
+        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(ISO3166CountryCode.IsoCountryCodeType.ALPHA2));
 
         // when
         boolean result = validatorUnderTest.isValid("HR", constraintValidatorContext);
@@ -49,7 +48,7 @@ public class ISO3166CountryCodeValidatorTest {
     @Test
     void shouldPassWhenGivenCountry3LetterCodeValid() {
         // given
-        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(3));
+        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(ISO3166CountryCode.IsoCountryCodeType.ALPHA3));
 
         // when
         boolean result = validatorUnderTest.isValid("TUR", constraintValidatorContext);
@@ -61,7 +60,7 @@ public class ISO3166CountryCodeValidatorTest {
     @Test
     void shouldPassWhenNullValue() {
         // given
-        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(2));
+        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(ISO3166CountryCode.IsoCountryCodeType.ALPHA2));
 
         // when
         boolean result = validatorUnderTest.isValid(null, constraintValidatorContext);
@@ -73,7 +72,7 @@ public class ISO3166CountryCodeValidatorTest {
     @Test
     void shouldFailWhen2LetterCountryCodeInvalid() {
         // given
-        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(2));
+        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(ISO3166CountryCode.IsoCountryCodeType.ALPHA2));
 
         // when
         boolean result = validatorUnderTest.isValid("AA", constraintValidatorContext);
@@ -85,7 +84,7 @@ public class ISO3166CountryCodeValidatorTest {
     @Test
     void shouldFailWhen3LetterCountryCodeInvalid() {
         // given
-        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(2));
+        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(ISO3166CountryCode.IsoCountryCodeType.ALPHA2));
 
         // when
         boolean result = validatorUnderTest.isValid("AAA", constraintValidatorContext);
@@ -94,18 +93,7 @@ public class ISO3166CountryCodeValidatorTest {
         assertThat(result, is(false));
     }
 
-    @Test
-    void shouldThrowExceptionWhenWrongLetterNumberProvided() {
-        // given
-        validatorUnderTest.initialize(createISO3166CountryCodeAnnotation(1));
-
-        // then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> validatorUnderTest.isValid("",
-                                                                                                           constraintValidatorContext));
-        assertThat(exception.getMessage(), is("Only 2 or 3 letter ISO 3166 country code can be validated!"));
-    }
-
-    private ISO3166CountryCode createISO3166CountryCodeAnnotation(int letter) {
+    private ISO3166CountryCode createISO3166CountryCodeAnnotation(ISO3166CountryCode.IsoCountryCodeType type) {
         return new ISO3166CountryCode() {
             @Override
             public Class<?>[] groups() {
@@ -117,8 +105,8 @@ public class ISO3166CountryCodeValidatorTest {
                 return new Class[0];
             }
 
-            public int letter() {
-                return letter;
+            public IsoCountryCodeType type() {
+                return type;
             }
 
             @Override

@@ -7,17 +7,19 @@ import memos.tutorials.customvalidation.controller.validation.validator.IntegerV
 import java.lang.annotation.*;
 
 /**
- * The annotated Integer value must be contained by the provided {@code values}.
+ * Annotated fields are validated to ensure that their values are one of the specified integer values.
+ * <p>
+ * The allowed integer values are specified as an array of integers using the {@code values} attribute.
  * <p>
  * {@code null} elements are considered valid.
  * <p>
  *
- * @author Memo's Tutorial
+ * @author <i> Memo's Tutorial</i>
  * @since 0.0.1
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.TYPE})
+@Target(ElementType.FIELD)
 @Constraint(validatedBy = IntegerValuesConstraintValidator.class)
 public @interface IntegerValues {
     int[] values();

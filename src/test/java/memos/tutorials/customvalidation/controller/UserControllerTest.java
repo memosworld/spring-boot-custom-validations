@@ -9,6 +9,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+
 import static memos.tutorials.customvalidation.TestUtils.buildMockMvc;
 import static memos.tutorials.customvalidation.TestUtils.getObjectMapper;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -126,6 +128,45 @@ public class UserControllerTest {
                .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldReturn400WhenAgeNotValid() throws Exception {
+        // given
+        UserRequestDTO dto = getValidUserRequestDTO();
+
+        dto.setBirthDate(LocalDate.now());
+
+        // when
+        mockMvc.perform(post("/validation-examples")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(getObjectMapper().writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
+
+        // given
+        dto = getValidUserRequestDTO();
+
+        dto.setBirthDate(LocalDate.of(1900, 1, 1));
+
+        // when
+        mockMvc.perform(post("/validation-examples")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(getObjectMapper().writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenCombinedValidationNotValid() throws Exception {
+        // given
+        UserRequestDTO dto = getValidUserRequestDTO();
+
+        dto.setCombinedValidation(6);
+
+        // when
+        mockMvc.perform(post("/validation-examples")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(getObjectMapper().writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
+    }
+
     private UserRequestDTO getValidUserRequestDTO() {
         UserRequestDTO dto = new UserRequestDTO();
         dto.setFirstName("Memo's");
@@ -135,6 +176,8 @@ public class UserControllerTest {
         dto.setLuckyNumber(7);
         dto.setMaxDataSize(32);
         dto.setFibonacci(13L);
+        dto.setBirthDate(LocalDate.of(1990, 1, 1));
+        dto.setCombinedValidation(7);
         return dto;
     }
 }

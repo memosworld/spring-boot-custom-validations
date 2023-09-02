@@ -8,11 +8,11 @@ import java.util.Locale;
 
 public class ISO3166CountryCodeValidator implements ConstraintValidator<ISO3166CountryCode, String> {
 
-    private int letter;
+    private ISO3166CountryCode.IsoCountryCodeType type;
 
     @Override
     public void initialize(ISO3166CountryCode constraintAnnotation) {
-        letter = constraintAnnotation.letter();
+        type = constraintAnnotation.type();
     }
 
     @Override
@@ -21,10 +21,9 @@ public class ISO3166CountryCodeValidator implements ConstraintValidator<ISO3166C
             return true;
         }
 
-        Locale.IsoCountryCode code = switch (letter) {
-            case 2 -> Locale.IsoCountryCode.PART1_ALPHA2;
-            case 3 -> Locale.IsoCountryCode.PART1_ALPHA3;
-            default -> throw new RuntimeException("Only 2 or 3 letter ISO 3166 country code can be validated!");
+        Locale.IsoCountryCode code = switch (type) {
+            case ALPHA2 -> Locale.IsoCountryCode.PART1_ALPHA2;
+            case ALPHA3 -> Locale.IsoCountryCode.PART1_ALPHA3;
         };
 
         return Locale.getISOCountries(code).contains(value.toUpperCase());

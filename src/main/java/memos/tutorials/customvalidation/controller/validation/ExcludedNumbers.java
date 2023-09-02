@@ -7,12 +7,14 @@ import memos.tutorials.customvalidation.controller.validation.validator.Excluded
 import java.lang.annotation.*;
 
 /**
- * The annotated Integer value cannot be any value defined in {@code excludedNumbers}.
+ * Annotated fields are validated to ensure that their values are not one of the specified excluded numbers.
+ * <p>
+ * Excluded numbers are specified as an array of integers using the {@code excludedNumbers} attribute.
  * <p>
  * {@code null} elements are considered valid.
  * <p>
  *
- * @author Memo's Tutorial
+ * @author <i> Memo's Tutorial</i>
  * @since 0.0.1
  */
 

@@ -7,12 +7,12 @@ import memos.tutorials.customvalidation.controller.validation.validator.Fibonacc
 import java.lang.annotation.*;
 
 /**
- * The annotated Long value must be a number within the Fibonacci series.
+ * Annotated fields are validated to ensure that their values represent numbers that are part of the <b>Fibonacci</b> series.
  * <p>
  * {@code null} elements are considered valid.
  * <p>
  *
- * @author Memo's Tutorial
+ * @author <i> Memo's Tutorial</i>
  * @since 0.0.1
  */
 
