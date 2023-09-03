@@ -4,6 +4,13 @@ This repository provides a collection of custom validation annotations for use w
 annotations help you enforce specific validation rules in your application by adding meaningful constraints (even though
 some of them are just for fun) to your data models.
 
+## Video Tutorial
+
+Learn how to create these custom validation annotations and integrate them into your Spring Boot applications.
+Watch the tutorial on YouTube for step-by-step guidance and examples:
+
+[Watch the Tutorial](https://youtu.be/c_C1lv4Kh7U?si=KbP1rErIujlAE9qp)
+
 ## Custom Validation Annotations
 
 ### Age
