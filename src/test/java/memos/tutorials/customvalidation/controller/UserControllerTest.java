@@ -167,6 +167,20 @@ public class UserControllerTest {
                .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldReturn400WhenSubscriptionDurationNotDivisibleBy3() throws Exception {
+        // given
+        UserRequestDTO dto = getValidUserRequestDTO();
+
+        dto.setSubscriptionDuration(2);
+
+        // when
+        mockMvc.perform(post("/validation-examples")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(getObjectMapper().writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
+    }
+
     private UserRequestDTO getValidUserRequestDTO() {
         UserRequestDTO dto = new UserRequestDTO();
         dto.setFirstName("Memo's");
@@ -178,6 +192,7 @@ public class UserControllerTest {
         dto.setFibonacci(13L);
         dto.setBirthDate(LocalDate.of(1990, 1, 1));
         dto.setCombinedValidation(7);
+        dto.setSubscriptionDuration(12);
         return dto;
     }
 }

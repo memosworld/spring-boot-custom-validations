@@ -2,7 +2,7 @@ package memos.tutorials.customvalidation.controller.validation.validator;
 
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
-import memos.tutorials.customvalidation.controller.validation.Fibonacci;
+import memos.tutorials.customvalidation.controller.validation.DivisibleBy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,19 +14,19 @@ import java.lang.annotation.Annotation;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class FibonacciConstraintValidatorTest {
+public class DivisibleByConstraintValidatorTest {
 
     AutoCloseable closeable;
 
     @Mock
     private ConstraintValidatorContext constraintValidatorContext;
 
-    private FibonacciConstraintValidator validatorUnderTest;
+    private DivisibleByConstraintValidator validatorUnderTest;
 
     @BeforeEach
     void setUp() {
         closeable = MockitoAnnotations.openMocks(this);
-        validatorUnderTest = new FibonacciConstraintValidator();
+        validatorUnderTest = new DivisibleByConstraintValidator();
     }
 
     @AfterEach
@@ -35,12 +35,12 @@ public class FibonacciConstraintValidatorTest {
     }
 
     @Test
-    void shouldPassWhenGivenNumberWithinFibonacci() {
+    void shouldPassWhenGivenNumberIsDivisibleBy() {
         // given
-        validatorUnderTest.initialize(createFibonacciAnnotation());
+        validatorUnderTest.initialize(createDivisibleByAnnotation(100));
 
         // when
-        boolean result = validatorUnderTest.isValid(2L, constraintValidatorContext);
+        boolean result = validatorUnderTest.isValid(200, constraintValidatorContext);
 
         // then
         assertThat(result, is(true));
@@ -49,7 +49,7 @@ public class FibonacciConstraintValidatorTest {
     @Test
     void shouldPassWhenNull() {
         // given
-        validatorUnderTest.initialize(createFibonacciAnnotation());
+        validatorUnderTest.initialize(createDivisibleByAnnotation(100));
 
         // when
         boolean result = validatorUnderTest.isValid(null, constraintValidatorContext);
@@ -59,19 +59,19 @@ public class FibonacciConstraintValidatorTest {
     }
 
     @Test
-    void shouldFailWhenGivenNumberNotInFibonacci() {
+    void shouldFailWhenGivenNumberIsNotDivisibleBy() {
         // given
-        validatorUnderTest.initialize(createFibonacciAnnotation());
+        validatorUnderTest.initialize(createDivisibleByAnnotation(10));
 
         // when
-        boolean result = validatorUnderTest.isValid(7L, constraintValidatorContext);
+        boolean result = validatorUnderTest.isValid(7, constraintValidatorContext);
 
         // then
         assertThat(result, is(false));
     }
 
-    private Fibonacci createFibonacciAnnotation() {
-        return new Fibonacci() {
+    private DivisibleBy createDivisibleByAnnotation(int divider) {
+        return new DivisibleBy() {
             @Override
             public Class<?>[] groups() {
                 return new Class<?>[0];
@@ -83,13 +83,18 @@ public class FibonacciConstraintValidatorTest {
             }
 
             @Override
+            public int divider() {
+                return divider;
+            }
+
+            @Override
             public String message() {
-                return "It must be a number within the Fibonacci series!";
+                return "It must be divisible by {divider}!";
             }
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return Fibonacci.class;
+                return DivisibleBy.class;
             }
         };
     }

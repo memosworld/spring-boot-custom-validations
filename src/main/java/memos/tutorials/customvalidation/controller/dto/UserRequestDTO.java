@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import memos.tutorials.customvalidation.controller.validation.*;
+import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
 
@@ -29,6 +30,7 @@ public class UserRequestDTO {
     @Age(min = 18, max = 65)
     private LocalDate birthDate;
 
+    @URL
     @ISO3166CountryCode
     private String country;
 
@@ -46,4 +48,8 @@ public class UserRequestDTO {
     @Max(value = 12)
     @ExcludedNumbers(excludedNumbers = {6, 9})
     private Integer combinedValidation;
+
+    @Min(3)
+    @DivisibleBy(divider = 3)
+    private Integer subscriptionDuration;
 }
