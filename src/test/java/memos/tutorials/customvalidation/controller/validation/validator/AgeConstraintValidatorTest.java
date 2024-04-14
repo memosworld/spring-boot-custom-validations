@@ -6,11 +6,16 @@ import memos.tutorials.customvalidation.controller.validation.Age;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.annotation.Annotation;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -36,76 +41,32 @@ public class AgeConstraintValidatorTest {
         closeable.close();
     }
 
-    @Test
-    void shouldPassWhenAgeBetweenMinAndMax() {
+    @ParameterizedTest
+    @MethodSource("validDateProvider")
+    void shouldPass(LocalDate date) {
         // given
         validatorUnderTest.initialize(createAgeAnnotation(18, 65));
 
         // when
-        boolean result = validatorUnderTest.isValid(LocalDate.of(1990, 1, 1), constraintValidatorContext);
+        boolean result = validatorUnderTest.isValid(date, constraintValidatorContext);
 
         // then
         assertThat(result, is(true));
     }
 
-    @Test
-    void shouldPassWhenAgeEqualToMin() {
-        // given
-        validatorUnderTest.initialize(createAgeAnnotation(18, 65));
-        LocalDate minAge = LocalDate.now().minusYears(18);
-
-        // when
-        boolean result = validatorUnderTest.isValid(minAge, constraintValidatorContext);
-
-        // then
-        assertThat(result, is(true));
-    }
-
-    @Test
-    void shouldPassWhenNull() {
+    @ParameterizedTest
+    @MethodSource("invalidDateProvider")
+    void shouldFail(LocalDate date) {
         // given
         validatorUnderTest.initialize(createAgeAnnotation(18, 65));
 
         // when
-        boolean result = validatorUnderTest.isValid(null, constraintValidatorContext);
-
-        // then
-        assertThat(result, is(true));
-    }
-
-    @Test
-    void shouldFailWhenAgeLessThanMin() {
-        // given
-        validatorUnderTest.initialize(createAgeAnnotation(18, 65));
-
-        // when
-        boolean result = validatorUnderTest.isValid(LocalDate.now(), constraintValidatorContext);
+        boolean result = validatorUnderTest.isValid(date, constraintValidatorContext);
 
         // then
         assertThat(result, is(false));
     }
 
-    @Test
-    void shouldFailWhenAgeGreaterThanOrEqualMax() {
-        // given
-        validatorUnderTest.initialize(createAgeAnnotation(18, 65));
-
-        // when
-        boolean result = validatorUnderTest.isValid(LocalDate.of(1900, 1, 1), constraintValidatorContext);
-
-        // then
-        assertThat(result, is(false));
-
-        // given
-        validatorUnderTest.initialize(createAgeAnnotation(18, 65));
-        LocalDate maxAge = LocalDate.now().minusYears(65);
-
-        // when
-        result = validatorUnderTest.isValid(maxAge, constraintValidatorContext);
-
-        // then
-        assertThat(result, is(false));
-    }
 
     @Test
     void shouldThrowExceptionWhenMinGreaterThanMax() {
@@ -141,6 +102,36 @@ public class AgeConstraintValidatorTest {
                                                                   constraintValidatorContext));
         assertThat(exception.getMessage(),
                    is("Invalid @Age annotation configuration: min and max must be non-negative, and min must be less than or equal to max."));
+    }
+
+    private static Stream<LocalDate> validDateProvider() {
+        List<LocalDate> list = new ArrayList<>();
+
+        // between min and max
+        list.add(LocalDate.now().minusYears(40));
+
+        // min age
+        list.add(LocalDate.now().minusYears(18));
+
+        // null
+        list.add(null);
+
+        return list.stream();
+    }
+
+    private static Stream<LocalDate> invalidDateProvider() {
+        List<LocalDate> list = new ArrayList<>();
+
+        // max age
+        list.add(LocalDate.now().minusYears(65));
+
+        // older
+        list.add(LocalDate.now().minusYears(100));
+
+        // younger
+        list.add(LocalDate.now());
+
+        return list.stream();
     }
 
     private Age createAgeAnnotation(int min, int max) {

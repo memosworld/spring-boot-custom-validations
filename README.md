@@ -21,6 +21,15 @@ The `@Age` annotation ensures that a `LocalDate` field represents an age within 
 
 The `@AtLeastOneNotBlank` annotation validates whether at least one of the specified fields is not blank (non-empty).
 
+### ConditionalMandatory
+
+The `@ConditionalMandatory` annotation validates whether required fields are present if specified field has the given
+value or values.
+
+### DivisibleBy
+
+The `@DivisibleBy` annotation ensures that a `Integer` field is divisible by the given divider
+
 ### ExcludedNumbers
 
 The `@ExcludedNumbers` annotation checks that a field's value is not one of the specified excluded numbers.

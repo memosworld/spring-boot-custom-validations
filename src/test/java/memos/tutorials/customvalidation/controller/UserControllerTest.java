@@ -4,12 +4,17 @@ import memos.tutorials.customvalidation.controller.dto.UserRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static memos.tutorials.customvalidation.TestUtils.buildMockMvc;
 import static memos.tutorials.customvalidation.TestUtils.getObjectMapper;
@@ -49,140 +54,89 @@ public class UserControllerTest {
 
     }
 
-    @Test
-    void shouldReturn400WhenLuckyNumberNotValid() throws Exception {
-        // given
+    @ParameterizedTest
+    @MethodSource("invalidDTOProvider")
+    void shouldReturn400(UserRequestDTO dto) throws Exception {
+        mockMvc.perform(post("/validation-examples")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(getObjectMapper().writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<UserRequestDTO> invalidDTOProvider() {
+        List<UserRequestDTO> requests = new ArrayList<>();
+
+        // Invalid lucky number
         UserRequestDTO dto = getValidUserRequestDTO();
-        dto.setPassport("790916a2-75db-4744-a2c5-6127c1271e31");
         dto.setLuckyNumber(13);
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-
-    }
-
-    @Test
-    void shouldReturn400WhenMaxDataSizeNotValid() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-        dto.setDrivingLicence("790916a2-75db-4744-a2c5-6127c1271e31");
-        dto.setFibonacci(null);
-
+        // Invalid max data size
+        dto = getValidUserRequestDTO();
         dto.setMaxDataSize(64);
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-
-    }
-
-    @Test
-    void shouldReturn400WhenFibonacciNotValid() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-        dto.setLuckyNumber(null);
-
+        // Invalid fibonacci
+        dto = getValidUserRequestDTO();
         dto.setFibonacci(4L);
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-
-    }
-
-    @Test
-    void shouldReturn400WhenSelectiveMandatoryFieldsNotPresent() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-
+        // Invalid selective mandatory
+        dto = getValidUserRequestDTO();
         dto.setPassport("");
         dto.setId(null);
         dto.setDrivingLicence("");
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-
-    }
-
-    @Test
-    void shouldReturn400WhenCountryNotValid() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-
-        dto.setCountry("TUR");
-
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenAgeNotValid() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-
-        dto.setBirthDate(LocalDate.now());
-
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-
-        // given
+        // Invalid country
         dto = getValidUserRequestDTO();
+        dto.setCountry("XXX");
+        requests.add(dto);
 
+        // Invalid age - younger
+        dto = getValidUserRequestDTO();
+        dto.setBirthDate(LocalDate.now());
+        requests.add(dto);
+
+        // Invalid age - older
+        dto = getValidUserRequestDTO();
         dto.setBirthDate(LocalDate.of(1900, 1, 1));
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenCombinedValidationNotValid() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-
+        // Invalid min, max, excluded number
+        dto = getValidUserRequestDTO();
         dto.setCombinedValidation(6);
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenSubscriptionDurationNotDivisibleBy3() throws Exception {
-        // given
-        UserRequestDTO dto = getValidUserRequestDTO();
-
+        // Invalid number divisible by 3
+        dto = getValidUserRequestDTO();
         dto.setSubscriptionDuration(2);
+        requests.add(dto);
 
-        // when
-        mockMvc.perform(post("/validation-examples")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(getObjectMapper().writeValueAsString(dto)))
-               .andExpect(status().isBadRequest());
+        // Invalid company name
+        dto = getValidUserRequestDTO();
+        dto.setType(UserRequestDTO.AccountType.BUSINESS);
+        dto.setCompanyName("");
+        requests.add(dto);
+
+        // Invalid personal first name
+        dto = getValidUserRequestDTO();
+        dto.setType(UserRequestDTO.AccountType.PERSONAL);
+        dto.setFirstName("");
+        requests.add(dto);
+
+        // Invalid personal last name
+        dto = getValidUserRequestDTO();
+        dto.setType(UserRequestDTO.AccountType.PERSONAL);
+        dto.setLastName("");
+        requests.add(dto);
+
+        return requests.stream();
     }
 
-    private UserRequestDTO getValidUserRequestDTO() {
+    private static UserRequestDTO getValidUserRequestDTO() {
         UserRequestDTO dto = new UserRequestDTO();
+        dto.setType(UserRequestDTO.AccountType.PERSONAL);
         dto.setFirstName("Memo's");
         dto.setLastName("Tutorials");
         dto.setId("790916a2-75db-4744-a2c5-6127c1271e31");

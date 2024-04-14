@@ -2,24 +2,31 @@ package memos.tutorials.customvalidation.controller.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import memos.tutorials.customvalidation.controller.validation.*;
-import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AtLeastOneNotBlank(fields = {"id", "passport", "drivingLicence"})
+@ConditionalMandatory(field = "type", values = "BUSINESS", requires = "companyName")
+@ConditionalMandatory(field = "type", values = "PERSONAL", requires = {"firstName", "lastName"})
 public class UserRequestDTO {
-    @NotBlank
+    public enum AccountType {
+        PERSONAL, BUSINESS
+    }
+
+    @NotNull
+    private AccountType type;
+
     private String firstName;
 
-    @NotBlank
     private String lastName;
+
+    private String companyName;
 
     private String id;
 
@@ -30,7 +37,6 @@ public class UserRequestDTO {
     @Age(min = 18, max = 65)
     private LocalDate birthDate;
 
-    @URL
     @ISO3166CountryCode
     private String country;
 
